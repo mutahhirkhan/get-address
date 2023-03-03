@@ -10,21 +10,24 @@ function App() {
 		publicKey: "",
 	});
 	const generate = async (e) => {
-		e.preventDefault();
+		try {
+			e.preventDefault();
+			const seed = await mnemonicToSeed(input);
+			const hdwallet = EthWallet.hdkey.fromMasterSeed(seed);
+			const wallet_hdpath = "m/44'/60'/0'/0/";
+			let fullPath = wallet_hdpath + 0;
+			console.log("fullPath", fullPath);
 
-		const seed = await mnemonicToSeed(input);
-		const hdwallet = EthWallet.hdkey.fromMasterSeed(seed);
-		const wallet_hdpath = "m/44'/60'/0'/0/";
-		let fullPath = wallet_hdpath + 0;
-		console.log("fullPath", fullPath);
+			const wallet = hdwallet.derivePath(fullPath).getWallet();
 
-		const wallet = hdwallet.derivePath(fullPath).getWallet();
-
-		setPrivateKeyAndPublicAddress({
-			privatekey: wallet.privKey.toString("hex"),
-			publicAddress: wallet.getAddress().toString("hex"),
-			publicKey: wallet.pubKey.toString("hex"),
-		});
+			setPrivateKeyAndPublicAddress({
+				privatekey: "0x" + wallet.privKey.toString("hex"),
+				publicAddress: wallet.getChecksumAddressString(),
+				publicKey: "0x" + wallet.pubKey.toString("hex"),
+			});
+		} catch (error) {
+			alert(error.message);
+		}
 	};
 	return (
 		<div className="container">
